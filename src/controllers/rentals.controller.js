@@ -32,20 +32,15 @@ export async function rentGame(req, res) {
 
         const game = await db.query(`SELECT * FROM games WHERE id = $1;`, [gameId]);
         if(!game.rows[0]) return res.sendStatus(400);
-        if(game.rows[0].stockTotal === 0) return res.sendStatus(400);
-        
 
-        const price = await db.query(`SELECT * FROM games WHERE games.id = $1;`, [gameId]);
+        const totalRented = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1;`, [gameId]);
+        if(totalRented.rowCount === game.rows[0].stockTotal) return res.sendStatus(400);     
         
         await db.query(
             `INSERT INTO rentals ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            ;`,
-            [customerId, gameId, dayjs().format('YYYY-MM-DD'), daysRented, null, price.rows[0].pricePerDay * daysRented, null]
+            VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+            [customerId, gameId, dayjs().format('YYYY-MM-DD'), daysRented, null, game.rows[0].pricePerDay * daysRented, null]
         );
-
-        const newStock = game.rows[0].stockTotal - 1;
-        await db.query(`UPDATE games SET "stockTotal" = $1 WHERE id = $2;`, [newStock, gameId])
 
         res.sendStatus(201);
     } catch (err) {
