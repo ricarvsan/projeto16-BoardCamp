@@ -26,7 +26,7 @@ export async function getCustomersById(req, res) {
 export async function insertCustomer(req, res) {
     const {name, phone, cpf, birthday} = req.body;
 
-    if(!name) return res.sendStatus(400);
+    if(name === "") return res.sendStatus(400);
 
     try {
         const cpfInUse = await db.query(`SELECT * FROM customers WHERE cpf = $1;`, [cpf]);
@@ -47,9 +47,14 @@ export async function updateCustomer(req, res) {
     const {id} = req.params;
     const {name, phone, cpf, birthday} = req.body;
 
+    if(name === "") return res.sendStatus(400);
+
     try {
-        const cpfInUse = await db.query(`SELECT * FROM customers WHERE cpf = $1 AND id = $2;`, [cpf, id]);
-        if(cpfInUse.rows[0]) return res.sendStatus(404);
+        const cpfInUse = await db.query(`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id]);
+        if(cpfInUse.rows[0]) return res.sendStatus(409);
+        await db.query(`UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE id = $5;`, 
+            [name, phone, cpf, birthday, id]
+        );
         
         res.sendStatus(200);
     } catch (err) {
