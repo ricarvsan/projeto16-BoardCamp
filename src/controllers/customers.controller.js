@@ -25,6 +25,10 @@ export async function getCustomersById(req, res) {
 
 export async function insertCustomer(req, res) {
     const {name, phone, cpf, birthday} = req.body;
+    const cpfPattern = /(^[0-9]{11}$)/;
+    const phonePattern = /(^[0-9]{10,11}$)/;
+
+    if(!cpfPattern.test(cpf) || !phonePattern.test(phone)) return res.sendStatus(400);
 
     if(name === "" || name === undefined) return res.sendStatus(400);
 
@@ -46,6 +50,10 @@ export async function insertCustomer(req, res) {
 export async function updateCustomer(req, res) {
     const {id} = req.params;
     const {name, phone, cpf, birthday} = req.body;
+    const cpfPattern = /('^[0-9]{11}$')/;
+    const phonePattern = /(^[0-9]{10,11}$)/;
+
+    if(!cpfPattern.test(cpf) || !phonePattern.test(phone)) return res.sendStatus(400);
 
     if(name === "" || name === undefined) return res.sendStatus(400);
 
