@@ -34,7 +34,7 @@ export async function rentGame(req, res) {
         const game = await db.query(`SELECT * FROM games WHERE id = $1;`, [gameId]);
         if(!game.rows[0]) return res.sendStatus(400);
 
-        const totalRented = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1;`, [gameId]);
+        const totalRented = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" = $2;`, [gameId, null]);
         if(totalRented.rowCount === game.rows[0].stockTotal) return res.sendStatus(400);     
         
         await db.query(
@@ -74,7 +74,7 @@ export async function endRental(req, res) {
             [dayjs().format('YYYY-MM-DD'), fee, id]
         );        
                
-        res.sendStatus(200);
+        res.send({fee});
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -86,7 +86,7 @@ export async function deleteRental(req, res) {
     try {
         const rental = await db.query(`SELECT * FROM rentals WHERE id = $1;`, [id]);
         if(!rental.rows[0]) return res.sendStatus(404);
-        if(rental.rows[0].returnDate) return res.sendStatus(400);
+        if(!rental.rows[0].returnDate) return res.sendStatus(400);
 
         await db.query(`DELETE FROM rentals WHERE id = $1;`, [id]);
 
