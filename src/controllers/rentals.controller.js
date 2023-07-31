@@ -74,7 +74,7 @@ export async function endRental(req, res) {
             [dayjs().format('YYYY-MM-DD'), fee, id]
         );        
                
-        res.send({fee});
+        res.sendStatus(200);
     } catch (err) {
         res.status(500).send(err.message);
     }
