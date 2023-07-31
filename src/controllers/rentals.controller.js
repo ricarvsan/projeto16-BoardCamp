@@ -34,7 +34,7 @@ export async function rentGame(req, res) {
         const game = await db.query(`SELECT * FROM games WHERE id = $1;`, [gameId]);
         if(!game.rows[0]) return res.sendStatus(400);
 
-        const totalRented = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" = $2;`, [gameId, null]);
+        const totalRented = await db.query(`SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NULL;`, [gameId]);
         if(totalRented.rowCount === game.rows[0].stockTotal) return res.sendStatus(400);     
         
         await db.query(
