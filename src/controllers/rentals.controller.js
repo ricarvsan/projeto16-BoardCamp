@@ -60,7 +60,7 @@ export async function endRental(req, res) {
         const data1 = dayjs();
         const data2 = rental.rows[0].rentDate;
         const diffTime = Math.round(data2 - data1);
-        const diffDays = Math.ceil(diffTime / 86400000) - rental.rows[0].daysRented;
+        const diffDays = Math.ceil(diffTime / 86400000) + rental.rows[0].daysRented;
         let fee;
         
         if(diffDays < 0) {
